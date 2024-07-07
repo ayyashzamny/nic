@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sri Lankan NIC Details</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            font-size: 1.5rem;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .card-body .result {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-label {
+            font-weight: bold;
+            margin-right: 10px;
+            width: 130px;
+        }
+
+        .result-value {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+        }
+
+        .form-control {
+            background-color: #333;
+            border: 1px solid #444;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            /* Adjust font size as needed */
+            padding: 0.75rem 1rem;
+            /* Adjust padding to increase size */
+        }
+
+
+        .form-control::placeholder {
+            color: #b0b0b0;
+            font-weight: normal;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: none;
+            background-color: #333;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .note {
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #b0b0b0;
+        }
+
+        .icon {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="card-header text-center">
+            Sri Lankan NIC Details
+        </div>
+        <div class="card-body">
+            <div class="note text-center">
+                <i class="fas fa-info-circle icon"></i>Note: This application does not save any data. It simply
+                calculates and displays the details.
+            </div>
+            <form>
+                <div class="form-group">
+                    <label for="add-nic">Enter NIC Number</label>
+                    <input type="text" id="add-nic" class="form-control" placeholder="Enter NIC Number">
+                </div>
+            </form>
+            <div class="result">
+                <div class="result-label"><i class="fas fa-calendar-alt icon"></i>Date of Birth:</div>
+                <div id="dob" class="result-value">-</div>
+            </div>
+            <div class="result">
+                <div class="result-label"><i class="fas fa-venus-mars icon"></i>Gender:</div>
+                <div id="gender" class="result-value">-</div>
+            </div>
+            <div class="result">
+                <div class="result-label"><i class="fas fa-birthday-cake icon"></i>Age:</div>
+                <div id="age" class="result-value">-</div>
+            </div>
+            <div class="result">
+                <div class="result-label"><i class="fas fa-clock icon"></i>Next Birthday:</div>
+                <div id="next-birthday" class="result-value">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#add-nic').on('input', function () {
+                var nic = $(this).val().toUpperCase(); // Convert input to uppercase for consistency
+
+                if (nic.length === 12) {
+                    // NIC without 'V' or 'X'
+                    var year = nic.substr(0, 4);
+                    var dayOfYear = parseInt(nic.substr(4, 3), 10);
+                    var gender = dayOfYear < 500 ? 'Male' : 'Female';
+                    if (gender === 'Female') {
+                        dayOfYear -= 500;
+                    }
+                    var date = new Date(year, 0, 1);
+                    date.setDate(dayOfYear - 1); // Correcting the date
+                    var dob = formatDate(date);
+                    $('#dob').text(dob);
+                    $('#gender').text(gender);
+                    $('#age').text(calculateAge(date));
+                    $('#next-birthday').text(calculateNextBirthday(date));
+                } else if (/^\d{9}[VX]$/.test(nic)) {
+                    // NIC with 'V' or 'X'
+                    var yearPrefix = '19';
+                    var year = yearPrefix + nic.substr(0, 2);
+                    var dayOfYear = parseInt(nic.substr(2, 3), 10);
+                    var lastChar = nic.charAt(9);
+                    var gender = (dayOfYear < 500) ? 'Male' : 'Female';
+                    if (gender === 'Female') {
+                        dayOfYear -= 500;
+                    }
+                    var date = new Date(year, 0, 1);
+                    date.setDate(dayOfYear - 1); // Correcting the date
+                    var dob = formatDate(date);
+                    $('#dob').text(dob);
+                    $('#gender').text(gender);
+                    $('#age').text(calculateAge(date));
+                    $('#next-birthday').text(calculateNextBirthday(date));
+                } else {
+                    // Clear fields if NIC is not valid
+                    $('#dob').text('-');
+                    $('#gender').text('-');
+                    $('#age').text('-');
+                    $('#next-birthday').text('-');
+                }
+            });
+
+            $('#add-nic').on('change', function () {
+                if ($(this).val() === '') {
+                    $('#dob').text('-');
+                    $('#gender').text('-');
+                    $('#age').text('-');
+                    $('#next-birthday').text('-');
+                }
+            });
+
+            function formatDate(date) {
+                var day = ("0" + date.getDate()).slice(-2);
+                var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                var year = date.getFullYear();
+                return year + "-" + month + "-" + day;
+            }
+
+            function calculateAge(dob) {
+                var now = new Date();
+                var ageYears = now.getFullYear() - dob.getFullYear();
+                var ageMonths = now.getMonth() - dob.getMonth();
+                var ageDays = now.getDate() - dob.getDate();
+
+                if (ageDays < 0) {
+                    ageMonths--;
+                    ageDays += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+                }
+
+                if (ageMonths < 0) {
+                    ageYears--;
+                    ageMonths += 12;
+                }
+
+                return ageYears + " years, " + ageMonths + " months, " + ageDays + " days";
+            }
+
+            function calculateNextBirthday(dob) {
+                var now = new Date();
+                var currentYear = now.getFullYear();
+                var nextBirthday = new Date(currentYear, dob.getMonth(), dob.getDate());
+
+                if (now > nextBirthday) {
+                    nextBirthday.setFullYear(currentYear + 1);
+                }
+
+                var daysLeft = Math.ceil((nextBirthday - now) / (1000 * 60 * 60 * 24));
+                return daysLeft + " days left";
+            }
+        });
+    </script>
+
+</body>
+
+</html>
